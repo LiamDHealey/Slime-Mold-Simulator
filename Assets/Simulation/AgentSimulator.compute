@@ -51,8 +51,8 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     bool outOfBounds = 
         Agents[id.x].position.x < 0 || 
         Agents[id.x].position.x > MaxBounds.x || 
-        Agents[id.y].position.y < 0 || 
-        Agents[id.y].position.y > MaxBounds.y;
+        Agents[id.x].position.y < 0 || 
+        Agents[id.x].position.y > MaxBounds.y;
     
     if (outOfBounds)
     {
@@ -69,12 +69,12 @@ void CSMain(uint3 id : SV_DispatchThreadID)
         Agents[id.x].position.x = 2 * MaxBounds.x - Agents[id.x].position.x;
         Agents[id.x].forward.x = -abs(Agents[id.x].forward.x);
     }
-    if (Agents[id.y].position.y < 0)
+    if (Agents[id.x].position.y < 0)
     {
         Agents[id.x].position.y *= -1;
         Agents[id.x].forward.y = abs(Agents[id.x].forward.y);
     }
-    else if (Agents[id.y].position.y > MaxBounds.y)
+    else if (Agents[id.x].position.y > MaxBounds.y)
     {
         Agents[id.x].position.y = 2 * MaxBounds.y - Agents[id.x].position.y;
         Agents[id.x].forward.y = -abs(Agents[id.x].forward.y);
