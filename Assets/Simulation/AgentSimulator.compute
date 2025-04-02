@@ -47,6 +47,7 @@ uint GetSeed(uint3 id)
 [numthreads(32, 1, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
+    // Bounce Agents
     Agents[id.x].position += Agents[id.x].forward * AgentSpeed;
     bool outOfBounds = 
         Agents[id.x].position.x < 0 || 
