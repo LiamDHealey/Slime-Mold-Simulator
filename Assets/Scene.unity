@@ -409,10 +409,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1885704845}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 512, y: 512}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1777919157
 MonoBehaviour:
@@ -461,9 +461,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99865347df28d8e4ab34d91c2953c766, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numAgents: 100
-  normalizedSpawnRadius: 0.253
-  agentSpeed: 1.6
+  numAgents: 128
+  normalizedSpawnRadius: 0.331
+  agentSpeed: 1
   shader: {fileID: 7200000, guid: 1f64aaacd7a6e7d4b878da382bd7db6b, type: 3}
   texture: {fileID: 8400000, guid: c63430c1c197199418d7d673c0f80d76, type: 2}
 --- !u!1 &1885704841

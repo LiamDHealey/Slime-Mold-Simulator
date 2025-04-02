@@ -20,9 +20,7 @@ public class ComputeController : MonoBehaviour
 
 
     [TitleGroup("Agents/Movement")]
-    //[OnValueChanged(nameof(speedChanged))]
     public float agentSpeed = 1.0f;
-    //void speedChanged() => shader.SetFloat("AgentSpeed", agentSpeed);
 
 
     [FoldoutGroup("References", false)]
@@ -45,7 +43,12 @@ public class ComputeController : MonoBehaviour
     public void ResetSimulation()
     {
         kernelHandle = shader.FindKernel("CSMain");
+
+        texture.Release();
+        texture.Create();
         shader.SetTexture(kernelHandle, "Result", texture);
+        shader.SetFloats("MaxBounds", new float[] { texture.width, texture.height, 0, 0 });
+
 
         Agent[] data = new Agent[numAgents];
         for (int i = 0; i < numAgents; i++)
@@ -55,15 +58,29 @@ public class ComputeController : MonoBehaviour
             data[i] = new Agent(position, forward);
         }
         
+        buffer?.Release();
         buffer = new ComputeBuffer(data.Length, Agent.sizeOf);
+        buffer.SetData(data);
         shader.SetBuffer(kernelHandle, "Agents", buffer);
 
-        Debug.Log("Simulation Reset!");
+        shader.Dispatch(kernelHandle, buffer.count / 32, 1, 1);
+
+        Debug.Log("Dispatched!");
+    }
+
+    private void Start()
+    {
+        ResetSimulation();
     }
 
     public void Update()
     {
-        shader.Dispatch(kernelHandle, buffer.count/32, 1, 1);
+        if (!Application.isPlaying)
+            return;
+
+        shader.SetFloat("AgentSpeed", agentSpeed * Time.deltaTime);
+        shader.SetFloat("Time", agentSpeed * Time.time);
+        shader.Dispatch(kernelHandle, buffer.count / 32, 1, 1);
     }
 
 }

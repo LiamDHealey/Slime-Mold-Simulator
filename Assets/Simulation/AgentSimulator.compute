@@ -1,23 +1,85 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
 
-
 struct Agent
 {
     float2 position;
     float2 forward;
 };
 
-
-RWTexture2D<float4> Result;
-
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float> Result;
 RWStructuredBuffer<Agent> Agents;
 
 
-[numthreads(32,1,1)]
-void CSMain (uint3 id : SV_DispatchThreadID)
-{
-    //Agents[id.x].position += Agents[id.x].forward * AgentSpeed;
+float AgentSpeed;
+float Time;
+float2 MaxBounds;
 
-    Result[id.x, id.x] = float4(1.0, 1.0, 1.0, 1.0);
+
+
+// Sudo random hash function from www.cs.ubc.ca/~rbridson/docs/schechter-sca08-turbulence.pdf
+uint RandomInt(uint seed)
+{
+    seed ^= 2747636419u;
+    seed *= 2654435769u;
+    seed ^= seed >> 16;
+    seed *= 2654435769u;
+    seed ^= seed >> 16;
+    seed *= 2654435769u;
+    return seed;
+}
+
+float2 RandomOnUnitCircle(uint seed)
+{
+    // Scale from 0-MaxInt to 0-2PI
+    float angle = RandomInt(seed) * 0.000000001462918079607771839139298211247265334157646664629657;
+    
+    return float2(cos(angle), sin(angle));
+}
+
+uint GetSeed(uint3 id)
+{
+    return Agents[id.x].position.y + Agents[id.x].position.x + RandomInt(id.x + Time * 100000);
+}
+
+[numthreads(32, 1, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    Agents[id.x].position += Agents[id.x].forward * AgentSpeed;
+    bool outOfBounds = 
+        Agents[id.x].position.x < 0 || 
+        Agents[id.x].position.x > MaxBounds.x || 
+        Agents[id.y].position.y < 0 || 
+        Agents[id.y].position.y > MaxBounds.y;
+    
+    if (outOfBounds)
+    {
+        Agents[id.x].forward = RandomOnUnitCircle(GetSeed(id));
+    }
+    
+    if (Agents[id.x].position.x < 0)
+    {
+        Agents[id.x].position.x *= -1;
+        Agents[id.x].forward.x = abs(Agents[id.x].forward.x);
+    }
+    else if (Agents[id.x].position.x > MaxBounds.x)
+    {
+        Agents[id.x].position.x = 2 * MaxBounds.x - Agents[id.x].position.x;
+        Agents[id.x].forward.x = -abs(Agents[id.x].forward.x);
+    }
+    if (Agents[id.y].position.y < 0)
+    {
+        Agents[id.x].position.y *= -1;
+        Agents[id.x].forward.y = abs(Agents[id.x].forward.y);
+    }
+    else if (Agents[id.y].position.y > MaxBounds.y)
+    {
+        Agents[id.x].position.y = 2 * MaxBounds.y - Agents[id.x].position.y;
+        Agents[id.x].forward.y = -abs(Agents[id.x].forward.y);
+    }
+    
+    
+    Result[Agents[id.x].position] = 1;
 }
