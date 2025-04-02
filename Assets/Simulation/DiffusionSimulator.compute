@@ -1,0 +1,23 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel SimulateDiffusion
+
+struct Agent
+{
+    float2 position;
+    float2 forward;
+};
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+Texture2D<float> Input;
+RWTexture2D<float> Result;
+
+float DecaySpeed;
+
+[numthreads(8, 8, 1)]
+void SimulateDiffusion(uint3 id : SV_DispatchThreadID)
+{    
+    Result[id.xy] = clamp((Input[uint2(id.x + 1, id.y + 1)] + Input[uint2(id.x + 0, id.y + 1)] + Input[uint2(id.x - 1, id.y + 1)] +
+                           Input[uint2(id.x + 1, id.y + 0)] + Input[uint2(id.x + 0, id.y + 0)] + Input[uint2(id.x - 1, id.y + 0)] +
+                           Input[uint2(id.x + 1, id.y - 1)] + Input[uint2(id.x + 0, id.y - 1)] + Input[uint2(id.x - 1, id.y - 1)]) / 9.0 - DecaySpeed * 0.001, 0.0, 1.0);
+}

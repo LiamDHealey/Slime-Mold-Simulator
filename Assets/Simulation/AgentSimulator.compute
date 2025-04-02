@@ -1,5 +1,5 @@
 // Each #kernel tells which function to compile; you can have many kernels
-#pragma kernel CSMain
+#pragma kernel SimulateAgents
 
 struct Agent
 {
@@ -45,7 +45,7 @@ uint GetSeed(uint3 id)
 }
 
 [numthreads(32, 1, 1)]
-void CSMain(uint3 id : SV_DispatchThreadID)
+void SimulateAgents(uint3 id : SV_DispatchThreadID)
 {
     // Bounce Agents
     Agents[id.x].position += Agents[id.x].forward * AgentSpeed;

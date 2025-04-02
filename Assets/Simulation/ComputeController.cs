@@ -21,6 +21,13 @@ public class ComputeController : MonoBehaviour
     public float agentSpeed = 1.0f;
 
 
+    
+    [BoxGroup("Diffusion")]
+    [MinValue(0f)]
+    public float decaySpeed = 1f;
+
+
+
     [FoldoutGroup("References", false)]
     public ComputeShader agentShader;
 
@@ -55,9 +62,14 @@ public class ComputeController : MonoBehaviour
             return;
 
 
+        diffusionShader.SetTexture(diffusionKernel, "Input", texture);
+        diffusionShader.SetTexture(diffusionKernel, "Result", diffusionTexture);
+        diffusionShader.SetFloat("DecaySpeed", decaySpeed);
+        diffusionShader.Dispatch(diffusionKernel, texture.width / 8, texture.height / 8, 1);
+        Graphics.CopyTexture(diffusionTexture, texture);
 
-        agentShader.SetFloat("AgentSpeed", agentSpeed * Time.deltaTime);
-        agentShader.SetFloat("Time", agentSpeed * Time.time);
+        agentShader.SetFloat("AgentSpeed", agentSpeed);
+        agentShader.SetFloat("Time", Time.time);
         agentShader.Dispatch(agentKernel, agentBuffer.count / 32, 1, 1);
     }
 
@@ -65,7 +77,8 @@ public class ComputeController : MonoBehaviour
     [Button]
     public void ResetSimulation()
     {
-        kernelHandle = shader.FindKernel("CSMain");
+        diffusionKernel = diffusionShader.FindKernel("SimulateDiffusion");
+        agentKernel = agentShader.FindKernel("SimulateAgents");
 
         texture.Release();
         texture.Create();
