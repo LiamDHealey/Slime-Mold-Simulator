@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
 
@@ -44,3 +45,5 @@ public class ExampleEditorScript : MonoBehaviour
         AssetDatabase.CreateAsset(texture, "Assets/Example3DTexture.asset");
     }
 }
+
+#endif
