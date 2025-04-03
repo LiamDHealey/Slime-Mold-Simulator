@@ -1,14 +1,6 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel SimulateDiffusion
 
-struct Agent
-{
-    float2 position;
-    float2 forward;
-};
-
-// Create a RenderTexture with enableRandomWrite flag and set it
-// with cs.SetTexture
 Texture2D<float> Input;
 RWTexture2D<float> Result;
 

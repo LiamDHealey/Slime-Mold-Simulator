@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [ExecuteAlways]
-[RequireComponent(typeof(RawImage))]
+[RequireComponent(typeof(RawImage), typeof(AspectRatioFitter))]
 public class ComputeController : MonoBehaviour
 {
     [BoxGroup("Agents")]
@@ -77,6 +77,8 @@ public class ComputeController : MonoBehaviour
     [Button]
     public void ResetSimulation()
     {
+        GetComponent<AspectRatioFitter>().aspectRatio = texture.width / texture.height;
+
         diffusionKernel = diffusionShader.FindKernel("SimulateDiffusion");
         agentKernel = agentShader.FindKernel("SimulateAgents");
 
@@ -90,8 +92,8 @@ public class ComputeController : MonoBehaviour
         for (int i = 0; i < numAgents; i++)
         {
             Vector2 position = Random.insideUnitCircle * normalizedSpawnRadius * texture.height / 2f + new Vector2(texture.width / 2f, texture.height / 2f);
-            Vector2 forward = Random.insideUnitCircle.normalized;
-            data[i] = new Agent(position, forward);
+            float angle = Random.Range(-Mathf.PI, Mathf.PI);
+            data[i] = new Agent(position, angle);
         }
 
         agentBuffer?.Release();
