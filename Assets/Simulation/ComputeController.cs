@@ -20,8 +20,14 @@ public class ComputeController : MonoBehaviour
     [TitleGroup("Agents/Movement")]
     public float agentSpeed = 1.0f;
 
+    [TitleGroup("Agents/Movement")]
+    public float forwardWeight = 1.0f;
 
-    
+    [TitleGroup("Agents/Movement")]
+    public Sensor[] sensors;
+
+
+
     [BoxGroup("Diffusion")]
     [MinValue(0f)]
     public float decaySpeed = 1f;
@@ -41,6 +47,7 @@ public class ComputeController : MonoBehaviour
 
 
     private ComputeBuffer agentBuffer;
+    private ComputeBuffer sensorBuffer;
     private RenderTexture diffusionTexture;
     private int agentKernel;
     private int diffusionKernel;
@@ -61,6 +68,9 @@ public class ComputeController : MonoBehaviour
         if (!Application.isPlaying)
             return;
 
+        agentShader.SetFloat("AgentSpeed", agentSpeed);
+        agentShader.SetFloat("Time", Time.time);
+        agentShader.Dispatch(agentKernel, agentBuffer.count / 32, 1, 1);
 
         diffusionShader.SetTexture(diffusionKernel, "Input", texture);
         diffusionShader.SetTexture(diffusionKernel, "Result", diffusionTexture);
@@ -68,9 +78,6 @@ public class ComputeController : MonoBehaviour
         diffusionShader.Dispatch(diffusionKernel, texture.width / 8, texture.height / 8, 1);
         Graphics.CopyTexture(diffusionTexture, texture);
 
-        agentShader.SetFloat("AgentSpeed", agentSpeed);
-        agentShader.SetFloat("Time", Time.time);
-        agentShader.Dispatch(agentKernel, agentBuffer.count / 32, 1, 1);
     }
 
     [GUIColor(0.5f, 1f, 0.5f)]
@@ -91,8 +98,9 @@ public class ComputeController : MonoBehaviour
         Agent[] data = new Agent[numAgents];
         for (int i = 0; i < numAgents; i++)
         {
-            Vector2 position = Random.insideUnitCircle * normalizedSpawnRadius * texture.height / 2f + new Vector2(texture.width / 2f, texture.height / 2f);
-            float angle = Random.Range(-Mathf.PI, Mathf.PI);
+            Vector2 direction = Random.insideUnitCircle;
+            Vector2 position = direction * normalizedSpawnRadius * texture.height / 2f + new Vector2(texture.width / 2f, texture.height / 2f);
+            float angle = Mathf.Atan2(-direction.y, -direction.x);
             data[i] = new Agent(position, angle);
         }
 
@@ -100,6 +108,15 @@ public class ComputeController : MonoBehaviour
         agentBuffer = new ComputeBuffer(data.Length, Agent.sizeOf);
         agentBuffer.SetData(data);
         agentShader.SetBuffer(agentKernel, "Agents", agentBuffer);
+
+
+        sensorBuffer?.Release();
+        sensorBuffer = new ComputeBuffer(sensors.Length, Sensor.sizeOf);
+        sensorBuffer.SetData(sensors);
+        agentShader.SetBuffer(agentKernel, "Sensors", sensorBuffer);
+        agentShader.SetInt("NumSensors", sensors.Length);
+        agentShader.SetFloat("ForwardWeight", forwardWeight);
+
 
         agentShader.Dispatch(agentKernel, agentBuffer.count / 32, 1, 1);
 

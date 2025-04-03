@@ -15,12 +15,14 @@ struct Sensor
 
 RWTexture2D<float> Result;
 RWStructuredBuffer<Agent> Agents;
-RWStructuredBuffer<Sensor> AgentSensors;
+RWStructuredBuffer<Sensor> Sensors;
 
 
 float AgentSpeed;
 float Time;
 float2 MaxBounds;
+int NumSensors;
+float ForwardWeight;
 
 #define PI 3.1415926535897932384626433
 
@@ -82,6 +84,24 @@ void SimulateAgents(uint3 id : SV_DispatchThreadID)
     {
         Agents[id.x].position.y = 2 * MaxBounds.y - Agents[id.x].position.y;
     }
+    
+    
+    
+    // Turn Agents
+    float targetAngle = Agents[id.x].angle * ForwardWeight;
+    float weightSum = ForwardWeight;
+    for (int i = 0; i < NumSensors; i++)
+    {
+        float angle = Sensors[i].angle + Agents[id.x].angle;
+        float2 position = Agents[id.x].position + float2(cos(angle), sin(angle)) * Sensors[i].distance;
+        float weight = Result[position];
+        weightSum += weight;
+        targetAngle += angle * weight;
+    }
+    
+    
+    targetAngle /= weightSum;
+    Agents[id.x].angle = targetAngle;
     
     
     Result[Agents[id.x].position] = 1;
