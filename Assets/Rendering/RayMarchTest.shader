@@ -38,9 +38,37 @@ Shader "Unlit/VolumeShader"
                 float3 vPos : TEXCOORD1;
             };
 
+            struct ray
+            {
+                float3 dir;
+                float3 origin;
+            };
+
+            struct AABB
+            {
+                float3 Min;
+                float3 Max;
+            };
+
             sampler3D _MainTex;
             float4 _MainTex_ST;
             float _StepSize;
+            float _Alpha;
+
+            //find intersection points of a ray with a box - taken from https://github.com/Barbelot/Physarum3D
+			bool intersectBox(ray r, AABB aabb, out float t0, out float t1)
+			{
+			    float3 invR = 1.0 / r.dir;
+			    float3 tbot = invR * (aabb.Min-r.origin);
+			    float3 ttop = invR * (aabb.Max-r.origin);
+			    float3 tmin = min(ttop, tbot);
+			    float3 tmax = max(ttop, tbot);
+			    float2 t = max(tmin.xx, tmin.yz);
+			    t0 = max(t.x, t.y);
+			    t = min(tmax.xx, tmax.yz);
+			    t1 = min(t.x, t.y);
+			    return t0 <= t1;
+			}
 
             float3 estimateNormal(float3 pos) {
                 float3 gradient = float3(0.0, 0.0, 0.0);
@@ -61,6 +89,13 @@ Shader "Unlit/VolumeShader"
                 return normalize(gradient); 
              }
 
+            float4 BlendUnder(float4 color, float4 newColor)
+            {
+                color.rgb += (1.0 - color.a) * newColor.a * newColor.rgb;
+                color.a += (1.0 - color.a) * newColor.a;
+                return color;
+            }
+
             v2f vert (appdata v)
             {
                 v2f o;
@@ -78,28 +113,36 @@ Shader "Unlit/VolumeShader"
 
             fixed4 frag(v2f i) : SV_Target
             {
-                // Start raymarching at the front surface of the object
-                float3 rayOrigin = i.oPos;
+                ray ray;
+                ray.dir = mul(unity_WorldToObject, float4(normalize(i.vPos), 1));
+                ray.origin = i.oPos;
 
-                // Use vector from camera to object surface to get ray direction
-                float3 rayDirection = mul(unity_WorldToObject, float4(normalize(i.vPos), 1));
+                AABB aabb;
+                aabb.Min = float3(-.5, -.5, -.5);
+                aabb.Max = float3(.5, .5, .5);
+
+                float near, far;
+                intersectBox(ray, aabb, near, far);
+
+                if(near < 0.0)
+                    near = 0.0;
 
                 float4 color = float4(0, 0, 0, 0);
-                float3 samplePosition = rayOrigin;
+                float3 samplePosition = ray.origin + ray.dir * near;
+                float3 rayEnd = ray.origin + ray.dir * far;
+                
+                float dist = distance(rayEnd, samplePosition);
+                float stepSize = dist/float(MAX_STEP_COUNT);
 
                 for (int i = 0; i < MAX_STEP_COUNT; i++)
                 {
+                    // Accumulate color only within unit cube bounds
                     if(max(abs(samplePosition.x), max(abs(samplePosition.y), abs(samplePosition.z))) < 0.5f + EPSILON)
                     {
                         float4 sampledColor = tex3D(_MainTex, samplePosition + float3(0.5f, 0.5f, 0.5f));
-
-                        if(sampledColor.a > 0.1f)
-                        {
-                            color = sampledColor;
-                            break;
-                        }
-
-                        samplePosition += rayDirection * _StepSize;
+                        sampledColor.a = _Alpha;
+                        color = BlendUnder(color, sampledColor);
+                        samplePosition += ray.dir * _StepSize;
                     }
                 }
 
