@@ -23,7 +23,6 @@ float AgentSpeed;
 float Time;
 float2 MaxBounds;
 int NumSensors;
-float ForwardTurnSpeed;
 
 #define PI 3.1415926535897932384626433
 
@@ -40,9 +39,9 @@ uint RandomInt(uint seed)
     return seed;
 }
 
-uint RandomFloat(uint seed)
+float RandomFloat(uint seed)
 {
-    return RandomInt(seed) / 4294967295.0;
+    return RandomInt(seed) * 0.00000000023283064370807973754314699618684756480782468915167;
 }
 
 float2 RandomAngle(uint seed)
@@ -79,7 +78,7 @@ void SimulateAgents(uint3 id : SV_DispatchThreadID)
             greatestWeight = weight;
             greatestIndex = i;
         }
-        if (weight < forwardWeight)
+        if (weight <= forwardWeight)
         {
             forwardLeast = false;
         }
@@ -87,8 +86,8 @@ void SimulateAgents(uint3 id : SV_DispatchThreadID)
     
     if (forwardLeast)
     {
-        float random = (RandomFloat(GetSeed(id)) - 0.5) * 2;
-        Agents[id.x].angle += random * ForwardTurnSpeed;
+        float random = (RandomFloat(GetSeed(id)) - 0.5) * 2.0;
+        Agents[id.x].angle += random * Sensors[0].turnSpeed;
     }
     else if (greatestIndex > 0)
     {

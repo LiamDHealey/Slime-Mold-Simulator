@@ -368,18 +368,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99865347df28d8e4ab34d91c2953c766, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numAgents: 16384
+  numAgents: 1048576
   normalizedSpawnRadius: 0.352
-  agentSpeed: 1
-  forwardWeight: 0.02
+  agentSpeed: 0.5
   sensors:
   - angle: 0
     distance: 3
+    turnSpeed: 0.1
   - angle: 0.3
     distance: 3
+    turnSpeed: 0.2
   - angle: -0.3
     distance: 3
-  decaySpeed: 4
+    turnSpeed: -0.2
+  decaySpeed: 0.01
+  decayPercent: 0.452
   agentShader: {fileID: 7200000, guid: 1f64aaacd7a6e7d4b878da382bd7db6b, type: 3}
   diffusionShader: {fileID: 7200000, guid: adc8da38f58266a439029bdd63726412, type: 3}
   texture: {fileID: 8400000, guid: c63430c1c197199418d7d673c0f80d76, type: 2}

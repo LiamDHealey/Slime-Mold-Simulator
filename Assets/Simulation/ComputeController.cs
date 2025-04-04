@@ -10,6 +10,9 @@ using UnityEngine.UI;
 [RequireComponent(typeof(RawImage), typeof(AspectRatioFitter))]
 public class ComputeController : MonoBehaviour
 {
+    [Range(1, 100)]
+    public int itterations = 1;
+
     [BoxGroup("Agents")]
     [TitleGroup("Agents/Spawning")]
     public int numAgents = 100;
@@ -20,9 +23,6 @@ public class ComputeController : MonoBehaviour
 
     [TitleGroup("Agents/Movement")]
     public float agentSpeed = 1.0f;
-
-    [TitleGroup("Agents/Movement")]
-    public float forwardTurnSpeed = 1.0f;
 
     [TitleGroup("Agents/Movement")]
     public Sensor[] sensors;
@@ -80,20 +80,22 @@ public class ComputeController : MonoBehaviour
             sensorBuffer.SetData(sensors);
             agentShader.SetBuffer(agentKernel, "Sensors", sensorBuffer);
             agentShader.SetInt("NumSensors", sensors.Length);
-            agentShader.SetFloat("ForwardTurnSpeed", forwardTurnSpeed);
-            lastSensors = sensors;
+            lastSensors = sensors.ToArray();
         }
 
-        agentShader.SetFloat("AgentSpeed", agentSpeed);
-        agentShader.SetFloat("Time", Time.time);
-        agentShader.Dispatch(agentKernel, agentBuffer.count / 32, 1, 1);
+        for (int i = 0; i < itterations; i++)
+        {
+            agentShader.SetFloat("AgentSpeed", agentSpeed);
+            agentShader.SetFloat("Time", Time.time);
+            agentShader.Dispatch(agentKernel, agentBuffer.count / 32, 1, 1);
 
-        diffusionShader.SetTexture(diffusionKernel, "Input", texture);
-        diffusionShader.SetTexture(diffusionKernel, "Result", diffusionTexture);
-        diffusionShader.SetFloat("DecaySpeed", decaySpeed);
-        diffusionShader.SetFloat("DecayPercent", decayPercent);
-        diffusionShader.Dispatch(diffusionKernel, texture.width / 8, texture.height / 8, 1);
-        Graphics.CopyTexture(diffusionTexture, texture);
+            diffusionShader.SetTexture(diffusionKernel, "Input", texture);
+            diffusionShader.SetTexture(diffusionKernel, "Result", diffusionTexture);
+            diffusionShader.SetFloat("DecaySpeed", decaySpeed);
+            diffusionShader.SetFloat("DecayPercent", decayPercent);
+            diffusionShader.Dispatch(diffusionKernel, texture.width / 8, texture.height / 8, 1);
+            Graphics.CopyTexture(diffusionTexture, texture);
+        }
 
     }
 
@@ -125,9 +127,6 @@ public class ComputeController : MonoBehaviour
         agentBuffer = new ComputeBuffer(data.Length, Agent.sizeOf);
         agentBuffer.SetData(data);
         agentShader.SetBuffer(agentKernel, "Agents", agentBuffer);
-
-
-        agentShader.Dispatch(agentKernel, agentBuffer.count / 32, 1, 1);
 
         Debug.Log("Dispatched!");
     }
