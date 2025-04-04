@@ -15,4 +15,12 @@ public struct Sensor
         this.distance = distance;
         this.turnSpeed = turnSpeed;
     }
+
+    public override bool Equals(object obj)
+    {
+        return obj is Sensor sensor &&
+               angle == sensor.angle &&
+               distance == sensor.distance &&
+               turnSpeed == sensor.turnSpeed;
+    }
 }
