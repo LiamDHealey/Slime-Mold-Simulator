@@ -10,10 +10,10 @@ float DecayPercent;
 [numthreads(8, 8, 1)]
 void SimulateDiffusion(uint3 id : SV_DispatchThreadID)
 {    
-    Result[id.xy] = lerp(
-        Input[id.xy], 
-        saturate((Input[uint2(id.x + 1, id.y + 1)] + Input[uint2(id.x + 0, id.y + 1)] + Input[uint2(id.x - 1, id.y + 1)] +
-                  Input[uint2(id.x + 1, id.y + 0)] + Input[uint2(id.x + 0, id.y + 0)] + Input[uint2(id.x - 1, id.y + 0)] +
-                  Input[uint2(id.x + 1, id.y - 1)] + Input[uint2(id.x + 0, id.y - 1)] + Input[uint2(id.x - 1, id.y - 1)]) / 9.0 - DecaySpeed),
-        DecayPercent);
+    Result[id.xy] = saturate(-DecaySpeed + lerp(
+        Input[id.xy],
+        (Input[uint2(id.x + 1, id.y + 1)] + Input[uint2(id.x + 0, id.y + 1)] + Input[uint2(id.x - 1, id.y + 1)] +
+         Input[uint2(id.x + 1, id.y + 0)] + Input[uint2(id.x + 0, id.y + 0)] + Input[uint2(id.x - 1, id.y + 0)] +
+         Input[uint2(id.x + 1, id.y - 1)] + Input[uint2(id.x + 0, id.y - 1)] + Input[uint2(id.x - 1, id.y - 1)]) / 9.0,
+        DecayPercent));
 }
