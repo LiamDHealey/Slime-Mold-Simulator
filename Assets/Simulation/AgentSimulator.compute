@@ -11,6 +11,7 @@ struct Sensor
 {
     float angle;
     float distance;
+    float turnSpeed;
 };
 
 RWTexture2D<float> Result;
@@ -22,7 +23,7 @@ float AgentSpeed;
 float Time;
 float2 MaxBounds;
 int NumSensors;
-float ForwardWeight;
+float ForwardTurnSpeed;
 
 #define PI 3.1415926535897932384626433
 
@@ -39,6 +40,11 @@ uint RandomInt(uint seed)
     return seed;
 }
 
+uint RandomFloat(uint seed)
+{
+    return RandomInt(seed) / 4294967295.0;
+}
+
 float2 RandomAngle(uint seed)
 {
     // Scale from 0 - MaxInt to -PI - PI
@@ -50,13 +56,58 @@ uint GetSeed(uint3 id)
     return Agents[id.x].position.y + Agents[id.x].position.x + RandomInt(id.x + Time * 100000);
 }
 
+float GetSensorWeight(uint id, uint i)
+{
+    float angle = Sensors[i].angle + Agents[id].angle;
+    float2 position = Agents[id].position + float2(cos(angle), sin(angle)) * Sensors[i].distance;
+    return Result[position];
+}
+
 [numthreads(32, 1, 1)]
 void SimulateAgents(uint3 id : SV_DispatchThreadID)
 {
-    // Bounce Agents
-    float2 forward = float2(cos(Agents[id.x].angle), sin(Agents[id.x].angle));
+    // Turn Agents
+    float forwardWeight = GetSensorWeight(id.x, 0);
+    float greatestWeight = forwardWeight;
+    int greatestIndex = -1;
+    bool forwardLeast = true;
+    for (int i = 1; i < NumSensors; i++)
+    {
+        float weight = GetSensorWeight(id.x, i);
+        if (weight > greatestWeight)
+        {
+            greatestWeight = weight;
+            greatestIndex = i;
+        }
+        if (weight < forwardWeight)
+        {
+            forwardLeast = false;
+        }
+    }
     
+    if (forwardLeast)
+    {
+        float random = (RandomFloat(GetSeed(id)) - 0.5) * 2;
+        Agents[id.x].angle += random * ForwardTurnSpeed;
+    }
+    else if (greatestIndex > 0)
+    {
+        Agents[id.x].angle += Sensors[greatestIndex].turnSpeed;
+    }
+    
+    Result[Agents[id.x].position] = 1;
+    
+    
+    
+    
+    // Move Agents
+    float2 forward = float2(cos(Agents[id.x].angle), sin(Agents[id.x].angle));    
     Agents[id.x].position += forward * AgentSpeed;
+    
+    
+    
+    
+    // Bounce Agents
     bool outOfBounds = 
         Agents[id.x].position.x < 0 || 
         Agents[id.x].position.x > MaxBounds.x || 
@@ -84,25 +135,4 @@ void SimulateAgents(uint3 id : SV_DispatchThreadID)
     {
         Agents[id.x].position.y = 2 * MaxBounds.y - Agents[id.x].position.y;
     }
-    
-    
-    
-    // Turn Agents
-    float targetAngle = Agents[id.x].angle * ForwardWeight;
-    float weightSum = ForwardWeight;
-    for (int i = 0; i < NumSensors; i++)
-    {
-        float angle = Sensors[i].angle + Agents[id.x].angle;
-        float2 position = Agents[id.x].position + float2(cos(angle), sin(angle)) * Sensors[i].distance;
-        float weight = Result[position];
-        weightSum += weight;
-        targetAngle += angle * weight;
-    }
-    
-    
-    targetAngle /= weightSum;
-    Agents[id.x].angle = targetAngle;
-    
-    
-    Result[Agents[id.x].position] = 1;
 }
