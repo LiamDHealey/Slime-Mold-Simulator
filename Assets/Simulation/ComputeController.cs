@@ -31,9 +31,10 @@ public class ComputeController : MonoBehaviour
 
     [BoxGroup("Diffusion")]
     [MinValue(0f)]
-    public float decaySpeed = 1f;
-    [MinValue(0f)]
-    public float decayPercent= 1f;
+    public float decaySpeed = 0.001f;
+
+    [Range(0f, 1f)]
+    public float decayPercent= 0.5f;
 
 
 
