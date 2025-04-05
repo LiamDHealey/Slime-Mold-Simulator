@@ -1,19 +1,30 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel SimulateDiffusion
 
-Texture2D<float> Input;
-RWTexture2D<float> Result;
+Texture3D<float> Input;
+RWTexture3D<float> Result;
 
 float DecaySpeed;
 float DecayPercent;
 
-[numthreads(8, 8, 1)]
+[numthreads(4, 4, 4)]
 void SimulateDiffusion(uint3 id : SV_DispatchThreadID)
 {    
-    Result[id.xy] = saturate(-DecaySpeed + lerp(
-        Input[id.xy],
-        (Input[uint2(id.x + 1, id.y + 1)] + Input[uint2(id.x + 0, id.y + 1)] + Input[uint2(id.x - 1, id.y + 1)] +
-         Input[uint2(id.x + 1, id.y + 0)] + Input[uint2(id.x + 0, id.y + 0)] + Input[uint2(id.x - 1, id.y + 0)] +
-         Input[uint2(id.x + 1, id.y - 1)] + Input[uint2(id.x + 0, id.y - 1)] + Input[uint2(id.x - 1, id.y - 1)]) / 9.0,
+    float averageColor = 0;
+    for (int i = -1; i <= 1; i++)
+    {
+        for (int j = -1; j <= 1; j++)
+        {
+            for (int k = -1; k <= 1; k++)
+            {
+                averageColor += Input[id.x + i, id.y + j, id.z + k];
+            }
+        }
+    }
+    averageColor /= 27f;
+    
+    Result[id.xyz] = saturate(-DecaySpeed + lerp(
+        Input[id.xyz],
+        averageColor,
         DecayPercent));
 }

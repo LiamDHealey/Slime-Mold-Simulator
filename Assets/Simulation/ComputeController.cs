@@ -7,7 +7,6 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [ExecuteAlways]
-[RequireComponent(typeof(RawImage), typeof(AspectRatioFitter))]
 public class ComputeController : MonoBehaviour
 {
     [Range(1, 100)]
@@ -59,7 +58,6 @@ public class ComputeController : MonoBehaviour
 
     private void Awake()
     {
-        GetComponent<RawImage>().texture = texture;
         diffusionTexture = new(texture);
     }
 
@@ -87,13 +85,13 @@ public class ComputeController : MonoBehaviour
         {
             agentShader.SetFloat("AgentSpeed", agentSpeed);
             agentShader.SetFloat("Time", Time.time);
-            agentShader.Dispatch(agentKernel, agentBuffer.count / 32, 1, 1);
+            agentShader.Dispatch(agentKernel, agentBuffer.count / 64, 1, 1);
 
             diffusionShader.SetTexture(diffusionKernel, "Input", texture);
             diffusionShader.SetTexture(diffusionKernel, "Result", diffusionTexture);
             diffusionShader.SetFloat("DecaySpeed", decaySpeed);
             diffusionShader.SetFloat("DecayPercent", decayPercent);
-            diffusionShader.Dispatch(diffusionKernel, texture.width / 8, texture.height / 8, 1);
+            diffusionShader.Dispatch(diffusionKernel, texture.width / 4, texture.height / 4, texture.volumeDepth / 4);
             Graphics.CopyTexture(diffusionTexture, texture);
         }
 
@@ -103,8 +101,6 @@ public class ComputeController : MonoBehaviour
     [Button]
     public void ResetSimulation()
     {
-        GetComponent<AspectRatioFitter>().aspectRatio = texture.width / texture.height;
-
         diffusionKernel = diffusionShader.FindKernel("SimulateDiffusion");
         agentKernel = agentShader.FindKernel("SimulateAgents");
 
@@ -117,10 +113,11 @@ public class ComputeController : MonoBehaviour
         Agent[] data = new Agent[numAgents];
         for (int i = 0; i < numAgents; i++)
         {
-            Vector2 direction = Random.insideUnitCircle;
-            Vector2 position = direction * normalizedSpawnRadius * texture.height / 2f + new Vector2(texture.width / 2f, texture.height / 2f);
-            float angle = Mathf.Atan2(-direction.y, -direction.x);
-            data[i] = new Agent(position, angle);
+            Vector3 direction = Random.insideUnitCircle;
+            Vector3 position = direction * normalizedSpawnRadius * texture.height / 2f + new Vector3(texture.width / 2f, texture.height / 2f, texture.volumeDepth / 2f);
+            float yaw = Mathf.Atan2(-direction.x, -direction.y);
+            float pitch = Mathf.Asin(direction.z);
+            data[i] = new Agent(position, yaw, pitch);
         }
 
         agentBuffer?.Release();

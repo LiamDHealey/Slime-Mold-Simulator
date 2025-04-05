@@ -3,18 +3,21 @@
 
 struct Agent
 {
-    float2 position;
-    float angle;
+    float3 position;
+    float yaw;
+    float pitch;
 };
 
 struct Sensor
 {
-    float angle;
+    float yaw;
+    float pitch;
     float distance;
-    float turnSpeed;
+    float yawTurnSpeed;
+    float pitchTurnSpeed;
 };
 
-RWTexture2D<float> Result;
+RWTexture3D<float> Result;
 RWStructuredBuffer<Agent> Agents;
 RWStructuredBuffer<Sensor> Sensors;
 
@@ -55,14 +58,21 @@ uint GetSeed(uint3 id)
     return Agents[id.x].position.y + Agents[id.x].position.x + RandomInt(id.x + Time * 100000);
 }
 
+float3 GetDirection(float yaw, float pitch)
+{
+    float x = cos(pitch);
+    return float3(cos(yaw) * x, sin(yaw) * x, sin(pitch));
+}
+
 float GetSensorWeight(uint id, uint i)
 {
-    float angle = Sensors[i].angle + Agents[id].angle;
-    float2 position = Agents[id].position + float2(cos(angle), sin(angle)) * Sensors[i].distance;
+    float yaw = Sensors[i].yaw + Agents[id].yaw;
+    float pitch = Sensors[i].pitch + Agents[id].pitch;
+    float3 position = Agents[id].position + GetDirection(yaw, pitch) * Sensors[i].distance;
     return Result[position];
 }
 
-[numthreads(32, 1, 1)]
+[numthreads(64, 1, 1)]
 void SimulateAgents(uint3 id : SV_DispatchThreadID)
 {
     // Turn Agents
@@ -87,11 +97,14 @@ void SimulateAgents(uint3 id : SV_DispatchThreadID)
     if (forwardLeast)
     {
         float random = (RandomFloat(GetSeed(id)) - 0.5) * 2.0;
-        Agents[id.x].angle += random * Sensors[0].turnSpeed;
+        Agents[id.x].yaw += random * Sensors[0].yawTurnSpeed;
+        random = (RandomFloat(GetSeed(id)) - 0.5) * 2.0;
+        Agents[id.x].pitch += random * Sensors[0].pitchTurnSpeed;
     }
     else if (greatestIndex > 0)
     {
-        Agents[id.x].angle += Sensors[greatestIndex].turnSpeed;
+        Agents[id.x].yaw += Sensors[0].yawTurnSpeed;
+        Agents[id.x].pitch += Sensors[0].pitchTurnSpeed;
     }
     
     Result[Agents[id.x].position] = 1;
@@ -100,7 +113,7 @@ void SimulateAgents(uint3 id : SV_DispatchThreadID)
     
     
     // Move Agents
-    float2 forward = float2(cos(Agents[id.x].angle), sin(Agents[id.x].angle));    
+    float3 forward = GetDirection(Agents[id.x].yaw, Agents[id.x].pitch);
     Agents[id.x].position += forward * AgentSpeed;
     
     
@@ -115,7 +128,8 @@ void SimulateAgents(uint3 id : SV_DispatchThreadID)
     
     if (outOfBounds)
     {
-        Agents[id.x].angle = RandomAngle(GetSeed(id));
+        Agents[id.x].yaw = RandomAngle(GetSeed(id));
+        Agents[id.x].pitch = RandomAngle(GetSeed(id));
     }
     
     if (Agents[id.x].position.x < 0)

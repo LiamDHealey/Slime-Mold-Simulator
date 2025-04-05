@@ -3,15 +3,17 @@ using System;
 [Serializable]
 public struct Sensor
 {
-    public const int sizeOf = 12;
+    public const int sizeOf = 16;
 
-    public float angle;
+    public float yaw;
+    public float pitch;
     public float distance;
     public float turnSpeed;
 
-    public Sensor(float angle, float distance, float turnSpeed)
+    public Sensor(float yaw, float pitch, float distance, float turnSpeed)
     {
-        this.angle = angle;
+        this.yaw = yaw;
+        this.pitch = pitch;
         this.distance = distance;
         this.turnSpeed = turnSpeed;
     }
@@ -19,7 +21,8 @@ public struct Sensor
     public override bool Equals(object obj)
     {
         return obj is Sensor sensor &&
-               angle == sensor.angle &&
+               yaw == sensor.yaw &&
+               pitch == sensor.pitch &&
                distance == sensor.distance &&
                turnSpeed == sensor.turnSpeed;
     }

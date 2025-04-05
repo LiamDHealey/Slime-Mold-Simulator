@@ -2,14 +2,16 @@ using UnityEngine;
 
 public struct Agent
 {
-    public const int sizeOf = 12;
+    public const int sizeOf = 20;
 
-    public Vector2 position;
-    public float angle;
+    public Vector3 position;
+    public float yaw;
+    public float pitch;
 
-    public Agent(Vector2 position, float angle)
+    public Agent(Vector3 position, float yaw, float pitch)
     {
         this.position = position;
-        this.angle = angle;
+        this.yaw = yaw;
+        this.pitch = pitch;
     }
 }
