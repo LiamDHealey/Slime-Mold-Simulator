@@ -140,8 +140,15 @@ Shader "Unlit/VolumeShader"
                     if(max(abs(samplePosition.x), max(abs(samplePosition.y), abs(samplePosition.z))) < 0.5f + EPSILON)
                     {
                         float4 sampledColor = tex3D(_MainTex, samplePosition + float3(0.5f, 0.5f, 0.5f));
-                        sampledColor.a = _Alpha;
-                        color = BlendUnder(color, sampledColor);
+                        if(sampledColor.r < .1)
+                        {
+                            sampledColor.a = 0;
+                        }
+                        else
+                        {
+                            return color;
+                            sampledColor.a = _Alpha;
+                        }
                         samplePosition += ray.dir * _StepSize;
                     }
                 }
