@@ -47,7 +47,7 @@ float RandomFloat(uint seed)
     return RandomInt(seed) * 0.00000000023283064370807973754314699618684756480782468915167;
 }
 
-float2 RandomAngle(uint seed)
+float RandomAngle(uint seed)
 {
     // Scale from 0 - MaxInt to -PI - PI
     return RandomInt(seed) * 0.000000001462918079607771839139298211247265334157646664629657 - PI;

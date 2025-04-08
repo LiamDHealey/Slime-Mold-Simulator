@@ -17,11 +17,11 @@ void SimulateDiffusion(uint3 id : SV_DispatchThreadID)
         {
             for (int k = -1; k <= 1; k++)
             {
-                averageColor += Input[id.x + i, id.y + j, id.z + k];
+                averageColor += Input[uint3(id.x + i, id.y + j, id.z + k)];
             }
         }
     }
-    averageColor /= 27f;
+    averageColor /= 27;
     
     Result[id.xyz] = saturate(-DecaySpeed + lerp(
         Input[id.xyz],

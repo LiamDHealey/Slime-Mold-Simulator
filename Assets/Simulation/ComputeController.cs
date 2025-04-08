@@ -66,6 +66,12 @@ public class ComputeController : MonoBehaviour
         ResetSimulation();
     }
 
+    private void OnDestroy()
+    {
+        agentBuffer?.Dispose();
+        sensorBuffer?.Dispose();
+    }
+
     public void FixedUpdate()
     {
         if (!Application.isPlaying)
@@ -73,7 +79,7 @@ public class ComputeController : MonoBehaviour
 
         if (!sensors.SequenceEqual(lastSensors))
         {
-            sensorBuffer?.Release();
+            sensorBuffer?.Dispose();
             sensorBuffer = new ComputeBuffer(sensors.Length, Sensor.sizeOf);
             sensorBuffer.SetData(sensors);
             agentShader.SetBuffer(agentKernel, "Sensors", sensorBuffer);
@@ -120,7 +126,7 @@ public class ComputeController : MonoBehaviour
             data[i] = new Agent(position, yaw, pitch);
         }
 
-        agentBuffer?.Release();
+        agentBuffer?.Dispose();
         agentBuffer = new ComputeBuffer(data.Length, Agent.sizeOf);
         agentBuffer.SetData(data);
         agentShader.SetBuffer(agentKernel, "Agents", agentBuffer);

@@ -213,7 +213,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 458673682}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 99865347df28d8e4ab34d91c2953c766, type: 3}
   m_Name: 
@@ -222,7 +222,32 @@ MonoBehaviour:
   numAgents: 100
   normalizedSpawnRadius: 0.25
   agentSpeed: 1
-  sensors: []
+  sensors:
+  - yaw: 0
+    pitch: 0
+    distance: 3
+    yawTurnSpeed: 0.1
+    pitchTurnSpeed: 0.1
+  - yaw: 0.3
+    pitch: 0
+    distance: 3
+    yawTurnSpeed: 0.1
+    pitchTurnSpeed: 0
+  - yaw: -0.3
+    pitch: 0
+    distance: 3
+    yawTurnSpeed: -0.1
+    pitchTurnSpeed: 0
+  - yaw: 0
+    pitch: 0.3
+    distance: 3
+    yawTurnSpeed: 0
+    pitchTurnSpeed: 0.1
+  - yaw: 0
+    pitch: -0.3
+    distance: 3
+    yawTurnSpeed: 0
+    pitchTurnSpeed: -0.1
   decaySpeed: 0.001
   decayPercent: 0.5
   agentShader: {fileID: 7200000, guid: 1f64aaacd7a6e7d4b878da382bd7db6b, type: 3}
