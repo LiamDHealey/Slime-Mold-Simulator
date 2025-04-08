@@ -117,43 +117,22 @@ Shader "Unlit/VolumeShader"
                 ray.dir = mul(unity_WorldToObject, float4(normalize(i.vPos), 1));
                 ray.origin = i.oPos;
 
-                AABB aabb;
-                aabb.Min = float3(-.5, -.5, -.5);
-                aabb.Max = float3(.5, .5, .5);
-
-                float near, far;
-                intersectBox(ray, aabb, near, far);
-
-                if(near < 0.0)
-                    near = 0.0;
-
-                float4 color = float4(0, 0, 0, 0);
-                float3 samplePosition = ray.origin + ray.dir * near;
-                float3 rayEnd = ray.origin + ray.dir * far;
+                float3 samplePosition = ray.origin;
                 
-                float dist = distance(rayEnd, samplePosition);
-                float stepSize = dist/float(MAX_STEP_COUNT);
-
+                float4 finalColor = (0,0,0,0);
                 for (int i = 0; i < MAX_STEP_COUNT; i++)
                 {
                     // Accumulate color only within unit cube bounds
                     if(max(abs(samplePosition.x), max(abs(samplePosition.y), abs(samplePosition.z))) < 0.5f + EPSILON)
                     {
-                        float4 sampledColor = tex3D(_MainTex, samplePosition + float3(0.5f, 0.5f, 0.5f));
-                        if(sampledColor.r < .1)
-                        {
-                            sampledColor.a = 0;
-                        }
-                        else
-                        {
-                            return color;
-                            sampledColor.a = _Alpha;
-                        }
+                        float sampledColor = tex3D(_MainTex, samplePosition + float3(0.5f, 0.5f, 0.5f).r);
+                        finalColor.r += sampledColor;
+                        finalColor.a += sampledColor; 
                         samplePosition += ray.dir * _StepSize;
                     }
                 }
 
-                return color;
+                return finalColor;
             }
             ENDCG
         }
