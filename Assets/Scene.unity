@@ -219,7 +219,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itterations: 1
-  numAgents: 100
+  numAgents: 10000
   normalizedSpawnRadius: 0.25
   agentSpeed: 1
   sensors:

@@ -8,7 +8,7 @@ Shader "Unlit/VolumeShader"
     }
     SubShader
     {
-        Tags { "Queue" = "Transparent" "RenderType" = "Transparent" }
+        Tags { "Queue" = "Transparent" }
         Blend One OneMinusSrcAlpha
         LOD 100
 
@@ -95,6 +95,17 @@ Shader "Unlit/VolumeShader"
                 color.a += (1.0 - color.a) * newColor.a;
                 return color;
             }
+            
+            // Map distance to color gradient
+            float3 DistanceToColor(float distance, float minDistance, float maxDistance)
+            {
+			    float t = saturate((distance - minDistance) / (maxDistance - minDistance));
+
+                float3 gradientStart = float3(0.7, 1.0, 0.7);
+                float3 gradientEnd = float3(0.7, 0.9, 1.0);
+
+                return lerp(gradientStart, gradientEnd, t);
+            }
 
             v2f vert (appdata v)
             {
@@ -126,13 +137,15 @@ Shader "Unlit/VolumeShader"
                     if(max(abs(samplePosition.x), max(abs(samplePosition.y), abs(samplePosition.z))) < 0.5f + EPSILON)
                     {
                         float sampledColor = tex3D(_MainTex, samplePosition + float3(0.5f, 0.5f, 0.5f).r);
-                        finalColor.r += sampledColor;
+                        float3 color = DistanceToColor(i * _StepSize + .5, .5, 1);
+                        color *= sampledColor;
+                        finalColor.rgb += color;
                         finalColor.a += sampledColor; 
                         samplePosition += ray.dir * _StepSize;
                     }
                 }
 
-                return finalColor;
+                return float4(finalColor.rgb, saturate(finalColor.a));
             }
             ENDCG
         }
