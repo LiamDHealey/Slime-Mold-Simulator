@@ -119,10 +119,11 @@ public class ComputeController : MonoBehaviour
         Agent[] data = new Agent[numAgents];
         for (int i = 0; i < numAgents; i++)
         {
-            Vector3 direction = Random.insideUnitCircle;
+            Vector3 direction = Vector3.Scale(Random.insideUnitSphere, new Vector3(1,0,0));
             Vector3 position = direction * normalizedSpawnRadius * texture.height / 2f + new Vector3(texture.width / 2f, texture.height / 2f, texture.volumeDepth / 2f);
-            float yaw = Mathf.Atan2(-direction.x, -direction.y);
-            float pitch = Mathf.Asin(direction.z);
+            Quaternion rotation = Quaternion.FromToRotation(Vector3.forward, direction.normalized);
+            float yaw = rotation.eulerAngles.z * Mathf.Deg2Rad;
+            float pitch = rotation.eulerAngles.x * Mathf.Deg2Rad;
             data[i] = new Agent(position, yaw, pitch);
         }
 
