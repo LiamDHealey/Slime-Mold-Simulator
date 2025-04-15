@@ -19,7 +19,7 @@ public class CameraMover : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        distance += Input.mouseScrollDelta.y * -zoomSpeed;
+        distance = Mathf.Clamp(distance + Input.mouseScrollDelta.y * -zoomSpeed, 0.1f, 4f);
 
         if (Input.GetMouseButton(0))
         {

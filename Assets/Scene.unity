@@ -226,28 +226,8 @@ MonoBehaviour:
   - yaw: 0
     pitch: 0
     distance: 3
-    yawTurnSpeed: 0.1
-    pitchTurnSpeed: 0.1
-  - yaw: 0.3
-    pitch: 0
-    distance: 3
-    yawTurnSpeed: 0.1
-    pitchTurnSpeed: 0
-  - yaw: -0.3
-    pitch: 0
-    distance: 3
-    yawTurnSpeed: -0.1
-    pitchTurnSpeed: 0
-  - yaw: 0
-    pitch: 0.3
-    distance: 3
     yawTurnSpeed: 0
-    pitchTurnSpeed: 0.1
-  - yaw: 0
-    pitch: -0.3
-    distance: 3
-    yawTurnSpeed: 0
-    pitchTurnSpeed: -0.1
+    pitchTurnSpeed: 0
   decaySpeed: 0.001
   decayPercent: 0.5
   agentShader: {fileID: 7200000, guid: 1f64aaacd7a6e7d4b878da382bd7db6b, type: 3}
@@ -426,7 +406,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d968e1a70551eee48824d05c37f5cc9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  zoomSpeed: 0.5
+  zoomSpeed: 0.2
   rotationSpeed: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
