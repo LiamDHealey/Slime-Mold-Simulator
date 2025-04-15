@@ -552,9 +552,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itterations: 1
-  numAgents: 10000
+  numAgents: 100
   normalizedSpawnRadius: 0.25
-  agentSpeed: 0.2
+  agentSpeed: 2
   sensors:
   - yaw: 0
     pitch: 0
@@ -562,7 +562,7 @@ MonoBehaviour:
     yawTurnSpeed: 0
     pitchTurnSpeed: 0
   decaySpeed: 0.001
-  decayPercent: 0.5
+  decayPercent: 0.107
   agentShader: {fileID: 7200000, guid: 1f64aaacd7a6e7d4b878da382bd7db6b, type: 3}
   diffusionShader: {fileID: 7200000, guid: adc8da38f58266a439029bdd63726412, type: 3}
   texture: {fileID: 8400000, guid: c63430c1c197199418d7d673c0f80d76, type: 2}

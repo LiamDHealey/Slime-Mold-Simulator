@@ -24,7 +24,7 @@ RWStructuredBuffer<Sensor> Sensors;
 
 float AgentSpeed;
 float Time;
-float2 MaxBounds;
+float3 MaxBounds;
 int NumSensors;
 
 #define PI 3.1415926535897932384626433
@@ -122,14 +122,16 @@ void SimulateAgents(uint3 id : SV_DispatchThreadID)
     // Bounce Agents
     bool outOfBounds = 
         Agents[id.x].position.x < 0 || 
-        Agents[id.x].position.x > MaxBounds.x || 
-        Agents[id.x].position.y < 0 || 
-        Agents[id.x].position.y > MaxBounds.y;
+        Agents[id.x].position.x > MaxBounds.x ||
+        Agents[id.x].position.y < 0 ||
+        Agents[id.x].position.y > MaxBounds.y ||
+        Agents[id.x].position.z < 0 || 
+        Agents[id.x].position.z > MaxBounds.z;
     
     if (outOfBounds)
     {
         Agents[id.x].yaw = RandomAngle(GetSeed(id));
-        Agents[id.x].pitch = RandomAngle(GetSeed(id));
+        Agents[id.x].pitch = RandomAngle(GetSeed(GetSeed(id)));
     }
     
     if (Agents[id.x].position.x < 0)

@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.Mathf;
 
 [ExecuteAlways]
 public class ComputeController : MonoBehaviour
@@ -113,17 +114,17 @@ public class ComputeController : MonoBehaviour
         texture.Release();
         texture.Create();
         agentShader.SetTexture(agentKernel, "Result", texture);
-        agentShader.SetFloats("MaxBounds", new float[] { texture.width, texture.height, 0, 0 });
+        agentShader.SetFloats("MaxBounds", new float[] { texture.width, texture.height, texture.volumeDepth, 0 });
 
 
         Agent[] data = new Agent[numAgents];
         for (int i = 0; i < numAgents; i++)
         {
-            Vector3 direction = Vector3.Scale(Random.insideUnitSphere, new Vector3(1,0,0));
+            float yaw = Random.Range(-PI, PI);
+            float pitch = Random.Range(-PI, PI);
+            Vector3 direction = new(Cos(yaw) * Cos(pitch), Sin(yaw) * Cos(pitch), Sin(pitch));
+            direction *= -Pow(Random.value, 1f / 3);
             Vector3 position = direction * normalizedSpawnRadius * texture.height / 2f + new Vector3(texture.width / 2f, texture.height / 2f, texture.volumeDepth / 2f);
-            Quaternion rotation = Quaternion.FromToRotation(Vector3.forward, direction.normalized);
-            float yaw = rotation.eulerAngles.z * Mathf.Deg2Rad;
-            float pitch = rotation.eulerAngles.x * Mathf.Deg2Rad;
             data[i] = new Agent(position, yaw, pitch);
         }
 
