@@ -98,13 +98,13 @@ void SimulateAgents(uint3 id : SV_DispatchThreadID)
     {
         float random = (RandomFloat(GetSeed(id)) - 0.5) * 2.0;
         Agents[id.x].yaw += random * Sensors[0].yawTurnSpeed;
-        random = (RandomFloat(GetSeed(id)) - 0.5) * 2.0;
+        random = (RandomFloat(GetSeed(GetSeed(id))) - 0.5) * 2.0;
         Agents[id.x].pitch += random * Sensors[0].pitchTurnSpeed;
     }
     else if (greatestIndex > 0)
     {
-        Agents[id.x].yaw += Sensors[0].yawTurnSpeed;
-        Agents[id.x].pitch += Sensors[0].pitchTurnSpeed;
+        Agents[id.x].yaw += Sensors[greatestIndex].yawTurnSpeed;
+        Agents[id.x].pitch += Sensors[greatestIndex].pitchTurnSpeed;
     }
     
     Result[Agents[id.x].position] = 1;
@@ -149,5 +149,13 @@ void SimulateAgents(uint3 id : SV_DispatchThreadID)
     else if (Agents[id.x].position.y > MaxBounds.y)
     {
         Agents[id.x].position.y = 2 * MaxBounds.y - Agents[id.x].position.y;
+    }
+    if (Agents[id.x].position.z < 0)
+    {
+        Agents[id.x].position.z *= -1;
+    }
+    else if (Agents[id.x].position.z > MaxBounds.z)
+    {
+        Agents[id.x].position.z = 2 * MaxBounds.z - Agents[id.x].position.z;
     }
 }
