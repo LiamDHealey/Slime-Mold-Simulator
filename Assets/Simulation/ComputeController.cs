@@ -10,7 +10,7 @@ using static UnityEngine.Mathf;
 [ExecuteAlways]
 public class ComputeController : MonoBehaviour
 {
-    [Range(1, 100)]
+    [Range(1, 10)]
     public int itterations = 1;
 
     [BoxGroup("Agents")]
@@ -121,7 +121,7 @@ public class ComputeController : MonoBehaviour
         for (int i = 0; i < numAgents; i++)
         {
             float yaw = Random.Range(-PI, PI);
-            float pitch = Random.Range(-PI, PI);
+            float pitch = 0;// Random.Range(-PI, PI);
             Vector3 direction = new(Cos(yaw) * Cos(pitch), Sin(yaw) * Cos(pitch), Sin(pitch));
             direction *= -Pow(Random.value, 1f / 3);
             Vector3 position = direction * normalizedSpawnRadius * texture.height / 2f + new Vector3(texture.width / 2f, texture.height / 2f, texture.volumeDepth / 2f);
