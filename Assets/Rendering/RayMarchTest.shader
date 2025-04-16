@@ -10,6 +10,7 @@ Shader "Unlit/VolumeShader"
     }
     SubShader
     {
+        Cull Off
         Tags { "Queue" = "Transparent" }
         Blend One OneMinusSrcAlpha
         LOD 100
@@ -23,7 +24,7 @@ Shader "Unlit/VolumeShader"
             #include "UnityCG.cginc"
 
             // Maximum number of raymarching samples
-            #define MAX_STEP_COUNT 600
+            #define MAX_STEP_COUNT 200
 
             // Allowed floating point inaccuracy
             #define EPSILON 0.000001f
@@ -59,7 +60,7 @@ Shader "Unlit/VolumeShader"
             float4 _ColorOne;
             float4 _ColorTwo;
 
-            //find intersection points of a ray with a box - taken from https://github.com/Barbelot/Physarum3D
+            //find intersection points of a ray with a box - taken from GPUGems
 			bool intersectBox(ray r, AABB aabb, out float t0, out float t1)
 			{
 			    float3 invR = 1.0 / r.dir;
@@ -73,32 +74,6 @@ Shader "Unlit/VolumeShader"
 			    t1 = min(t.x, t.y);
 			    return t0 <= t1;
 			}
-
-            float3 estimateNormal(float3 pos) {
-                float3 gradient = float3(0.0, 0.0, 0.0);
-                
-                float3 offsets[6] = { 
-                    float3(_StepSize, 0, 0), float3(-_StepSize, 0, 0),
-                    float3(0, _StepSize, 0), float3(0, -_StepSize, 0),
-                    float3(0, 0, _StepSize), float3(0, 0, -_StepSize)
-                };
-
-                for (int i = 0; i < 6; i++) {
-                    float4 neighbor = tex3D(_MainTex, pos + offsets[i] + 0.5);
-                    if (neighbor.a > 0.01) {
-                        gradient += offsets[i] * 0.5; 
-                    }
-                }
-                
-                return normalize(gradient); 
-             }
-
-            float4 BlendUnder(float4 color, float4 newColor)
-            {
-                color.rgb += (1.0 - color.a) * newColor.a * newColor.rgb;
-                color.a += (1.0 - color.a) * newColor.a;
-                return color;
-            }
             
             // Map distance to color gradient
             float3 DistanceToColor(float distance, float minDistance, float maxDistance)
@@ -111,7 +86,6 @@ Shader "Unlit/VolumeShader"
             {
                 v2f o;
 
-                // Vertex in object space. This is the starting point for the raymarching.
                 o.oPos = v.pos;
 
                 // Calculate vector from camera to vertex in world space
@@ -125,25 +99,46 @@ Shader "Unlit/VolumeShader"
             fixed4 frag(v2f i) : SV_Target
             {
                 ray ray;
-                ray.dir = mul(unity_WorldToObject, float4(normalize(i.vPos), 1));
-                ray.origin = i.oPos;
-
-                float3 samplePosition = ray.origin;
+                ray.origin = _WorldSpaceCameraPos;
+                ray.dir = normalize(mul((float3x3)unity_WorldToObject, i.vPos));
                 
-                float4 finalColor = (0,0,0,0);
+                AABB box;
+                box.Min = float3(-0.51, -0.51, -0.51);
+                box.Max = float3( 0.51,  0.51,  0.51);
+
+                float t0;
+                float t1;
+
+                intersectBox(ray, box, t0, t1);
+
+                if(t0 < 0.0)
+                {
+                    t0 = 0.0;
+                }
+                
+                float4 finalColor = float4(0,0,0,0);
+
+                float3 rayStart = ray.origin + ray.dir * t0;
+                float3 rayStop = ray.origin + ray.dir * t1;
+
+                rayStart += .5;
+                rayStop += .5;
+
+                float dist = distance(rayStop, rayStart);
+                float stepSize = dist/float(MAX_STEP_COUNT);
+                float3 ds = normalize(rayStop - rayStart) * stepSize;
+                
+                float3 samplePosition = rayStart;
                 for (int i = 0; i < MAX_STEP_COUNT; i++)
                 {
-                    // Accumulate color only within unit cube bounds
-                    if(max(abs(samplePosition.x), max(abs(samplePosition.y), abs(samplePosition.z))) < 0.5f + EPSILON)
-                    {
-                        float sampledColor = tex3D(_MainTex, samplePosition + float3(0.5f, 0.5f, 0.5f).r);
-                        float3 color = DistanceToColor(i * _StepSize + .5, .5, 1);
-                        color *= sampledColor;
-                        finalColor.rgb += color;
-                        finalColor.a += sampledColor; 
-                        samplePosition += ray.dir * _StepSize;
-                    }
+                    float sampledColor = tex3D(_MainTex, saturate(samplePosition));
+                    float3 color = DistanceToColor(i * stepSize, -.5, .5);
+                    color *= sampledColor;
+                    finalColor.rgb += color;
+                    finalColor.a += sampledColor; 
+                    samplePosition += ds;
                 }
+                
 
                 return float4(finalColor.rgb, saturate(finalColor.a));
             }
