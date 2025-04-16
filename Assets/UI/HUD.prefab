@@ -2649,8 +2649,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 304.9629, y: 62.8437}
+  m_AnchoredPosition: {x: 5, y: 5}
+  m_SizeDelta: {x: 405.8097, y: 62.8437}
   m_Pivot: {x: 0, y: 0}
 --- !u!222 &6174971668944421979
 CanvasRenderer:
@@ -2686,6 +2686,12 @@ MonoBehaviour:
     to hide the UI
 
     Press <color=white><b>Space</b></color> to restart the simulaiton
+
+    Hold
+    <color=white><b>LMB</b></color> to rotate the camera
+
+    Hold <color=white><b>RMB</b></color>
+    & use <color=white><b>WASD</b></color>  to move the camera
 
 '
   m_isRightToLeft: 0
