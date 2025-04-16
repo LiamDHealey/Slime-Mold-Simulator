@@ -34,8 +34,73 @@ public class ComputeController : MonoBehaviour
     [field: Range(0, 1)]
     public float normalizedSpawnRadius { get; set; } = 0.25f;
 
-    [TitleGroup("Agents/Movement")]
-    public float agentSpeed = 1.0f;
+    [field: TitleGroup("Agents/Movement"), SerializeField]
+    public float agentSpeed { get; set; } = 0.2f;
+
+    public float agentTurnSpeed
+    {
+        get => _agentTurnSpeed;
+        set { _agentTurnSpeed = value; UpdateSensorAngles(); }
+    }
+    private float _agentTurnSpeed = 0.2f;
+
+    public bool yawSensors
+    {
+        get => _yawSensors;
+        set { _yawSensors = value; UpdateSensorAngles(); UpdateIndecisionSensorAngles(); }
+    }
+    private bool _yawSensors = true;
+    
+    public bool pitchSensors 
+    { 
+        get => _pitchSensors; 
+        set { _pitchSensors = value; UpdateSensorAngles(); UpdateIndecisionSensorAngles(); } 
+    }
+    private bool _pitchSensors = true;
+
+    private void UpdateSensorAngles()
+    {
+        sensors[1].yaw = yawSensors ? agentTurnSpeed : 0;
+        sensors[2].yaw = -(yawSensors ? agentTurnSpeed : 0);
+        sensors[3].pitch = pitchSensors ? agentTurnSpeed : 0;
+        sensors[4].pitch = -(pitchSensors ? agentTurnSpeed : 0);
+    }
+
+    private float _indecisionTurnSpeed = 1f;
+    public float indecisionTurnSpeed
+    {
+        get => _indecisionTurnSpeed;
+        set { _indecisionTurnSpeed = value; UpdateIndecisionSensorAngles(); }
+    }
+    private void UpdateIndecisionSensorAngles()
+    {
+        sensors[0].yawTurnSpeed = yawSensors ? indecisionTurnSpeed : 0;
+        sensors[0].pitchTurnSpeed = pitchSensors ? indecisionTurnSpeed : 0;
+    }
+
+    public float sensorDistance 
+    { 
+        set
+        {
+            for (int i = 0; i < sensors.Length; i++)
+            {
+                sensors[i].distance = value;
+            }
+        }
+    }
+
+
+    public float sensorAngle
+    {
+        set
+        {
+            sensors[1].yaw = value;
+            sensors[2].yaw = -value;
+            sensors[3].pitch = value;
+            sensors[4].pitch = -value;
+        }
+    }
+
 
     [TitleGroup("Agents/Movement")]
     public Sensor[] sensors;
