@@ -35,7 +35,7 @@ public class CameraMover : MonoBehaviour
         }
         if (Input.GetMouseButton(0))
         {
-            distance = Mathf.Clamp(distance + Input.mouseScrollDelta.y * -zoomSpeed, -5, 4f);
+            distance = Mathf.Clamp(distance + Input.mouseScrollDelta.y * -zoomSpeed, 0, 4f);
             transform.localPosition = -transform.forward * distance;
         }
         else

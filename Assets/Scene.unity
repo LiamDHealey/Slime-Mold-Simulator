@@ -592,7 +592,7 @@ MonoBehaviour:
     yawTurnSpeed: 0
     pitchTurnSpeed: -0.2
   <decaySpeed>k__BackingField: 0.0078125
-  <decayPercent>k__BackingField: 0.2
+  <decayPercent>k__BackingField: 0.1047192
   agentShader: {fileID: 7200000, guid: 1f64aaacd7a6e7d4b878da382bd7db6b, type: 3}
   diffusionShader: {fileID: 7200000, guid: adc8da38f58266a439029bdd63726412, type: 3}
   texture: {fileID: 8400000, guid: c63430c1c197199418d7d673c0f80d76, type: 2}
@@ -735,8 +735,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d968e1a70551eee48824d05c37f5cc9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  zoomSpeed: 0.01
-  rotationSpeed: 1
+  zoomSpeed: 0.2
+  moveSpeed: 1
+  rotationSpeed: 0.3
 --- !u!1 &1176158357
 GameObject:
   m_ObjectHideFlags: 0
@@ -2719,6 +2720,10 @@ PrefabInstance:
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 458673686}
+    - target: {fileID: 8100505050457065684, guid: 58e5d4b564a7fde47a247fc1e735b1c9, type: 3}
+      propertyPath: m_Value
+      value: 0.1047192
+      objectReference: {fileID: 0}
     - target: {fileID: 8100505050457065684, guid: 58e5d4b564a7fde47a247fc1e735b1c9, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
