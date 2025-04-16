@@ -64,10 +64,19 @@ float3 GetDirection(float yaw, float pitch)
     return float3(cos(yaw) * x, sin(yaw) * x, sin(pitch));
 }
 
+float WrapAngle(float value)
+{
+    return value <= PI && value > -PI
+        ? value
+        : value > 0
+            ? value - 2 * PI
+            : value + 2 * PI;
+}
+
 float GetSensorWeight(uint id, uint i)
 {
-    float yaw = Sensors[i].yaw + Agents[id].yaw;
-    float pitch = Sensors[i].pitch + Agents[id].pitch;
+    float yaw = WrapAngle(Sensors[i].yaw + Agents[id].yaw);
+    float pitch = WrapAngle(Sensors[i].pitch + Agents[id].pitch);
     float3 position = Agents[id].position + GetDirection(yaw, pitch) * Sensors[i].distance;
     
     bool outOfBounds =
@@ -106,14 +115,14 @@ void SimulateAgents(uint3 id : SV_DispatchThreadID)
     if (forwardLeast)
     {
         float random = (RandomFloat(GetSeed(id + 5000000)) - 0.5) * 2.0;
-        Agents[id.x].yaw += random * Sensors[0].yawTurnSpeed;
+        Agents[id.x].yaw = WrapAngle(Agents[id.x].yaw + random * Sensors[0].yawTurnSpeed);
         random = (RandomFloat(GetSeed(id)) - 0.5) * 2.0;
-        Agents[id.x].pitch += random * Sensors[0].pitchTurnSpeed;
+        Agents[id.x].pitch = WrapAngle(Agents[id.x].pitch + random * Sensors[0].pitchTurnSpeed);
     }
     else if (greatestIndex > 0)
     {
-        Agents[id.x].yaw += Sensors[greatestIndex].yawTurnSpeed;
-        Agents[id.x].pitch += Sensors[greatestIndex].pitchTurnSpeed;
+        Agents[id.x].yaw = WrapAngle(Agents[id.x].yaw + Sensors[greatestIndex].yawTurnSpeed);
+        Agents[id.x].pitch = WrapAngle(Agents[id.x].pitch + Sensors[greatestIndex].pitchTurnSpeed);
     }
     
     Result[Agents[id.x].position] = 1;

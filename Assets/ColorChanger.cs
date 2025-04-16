@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ColorChanger : MonoBehaviour
 {
@@ -41,13 +42,13 @@ public class ColorChanger : MonoBehaviour
         Vector4 colorOne;
         Vector4 colorTwo;
         
-        colorOne = new Vector4(float.Parse(redOne.GetComponent<TMP_InputField>().text) / 255, 
-                               float.Parse(greenOne.GetComponent<TMP_InputField>().text) / 255, 
-                               float.Parse(blueOne.GetComponent<TMP_InputField>().text) / 255, 1);
+        colorOne = new Vector4(redOne.GetComponentInChildren<Slider>().value, 
+                               greenOne.GetComponentInChildren<Slider>().value, 
+                               blueOne.GetComponentInChildren<Slider>().value, 1);
         
-        colorTwo = new Vector4(float.Parse(redTwo.GetComponent<TMP_InputField>().text) / 255, 
-                               float.Parse(greenTwo.GetComponent<TMP_InputField>().text) / 255, 
-                               float.Parse(blueTwo.GetComponent<TMP_InputField>().text) / 255, 1);
+        colorTwo = new Vector4(redTwo.GetComponentInChildren<Slider>().value, 
+                               greenTwo.GetComponentInChildren<Slider>().value, 
+                               blueTwo.GetComponentInChildren<Slider>().value, 1);
         
         mat.SetVector("_ColorOne", colorOne);
         mat.SetVector("_ColorTwo", colorTwo);

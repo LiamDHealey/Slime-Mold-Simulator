@@ -121,9 +121,9 @@ public class ComputeController : MonoBehaviour
         for (int i = 0; i < numAgents; i++)
         {
             float yaw = Random.Range(-PI, PI);
-            float pitch = 0;// Random.Range(-PI, PI);
+            float pitch = Random.Range(-PI, PI);
             Vector3 direction = new(Cos(yaw) * Cos(pitch), Sin(yaw) * Cos(pitch), Sin(pitch));
-            direction *= -Pow(Random.value, 1f / 3);
+            //direction *= -Pow(Random.value, 1f / 3);
             Vector3 position = direction * normalizedSpawnRadius * texture.height / 2f + new Vector3(texture.width / 2f, texture.height / 2f, texture.volumeDepth / 2f);
             data[i] = new Agent(position, yaw, pitch);
         }

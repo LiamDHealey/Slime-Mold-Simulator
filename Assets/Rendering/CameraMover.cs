@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class CameraMover : MonoBehaviour
 {
@@ -21,7 +22,7 @@ public class CameraMover : MonoBehaviour
     {
         distance = Mathf.Clamp(distance + Input.mouseScrollDelta.y * -zoomSpeed, 1.22474487f, 4f);
 
-        if (Input.GetMouseButton(0))
+        if (Input.GetMouseButton(0) && !EventSystem.current.IsPointerOverGameObject())
         {
             var delta = Input.mousePosition - lastMousePos;
             delta = new(-delta.y, delta.x, delta.z);
