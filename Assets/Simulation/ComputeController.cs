@@ -107,12 +107,12 @@ public class ComputeController : MonoBehaviour
 
 
 
-    [BoxGroup("Diffusion")]
-    [MinValue(0f)]
-    public float decaySpeed = 0.001f;
+    [field: BoxGroup("Diffusion")]
+    [field: MinValue(0f), SerializeField]
+    public float decaySpeed { get; set; } = 0.001f;
 
-    [Range(0f, 1f)]
-    public float decayPercent= 0.5f;
+    [field: Range(0f, 1f), BoxGroup("Diffusion"), SerializeField]
+    public float decayPercent { get; set; } = 0.5f;
 
 
 
@@ -174,7 +174,7 @@ public class ComputeController : MonoBehaviour
 
             diffusionShader.SetTexture(diffusionKernel, "Input", texture);
             diffusionShader.SetTexture(diffusionKernel, "Result", diffusionTexture);
-            diffusionShader.SetFloat("DecaySpeed", decaySpeed);
+            diffusionShader.SetFloat("DecaySpeed", decaySpeed == 1 ? 0 : Pow(2, decaySpeed-10));
             diffusionShader.SetFloat("DecayPercent", decayPercent);
             diffusionShader.Dispatch(diffusionKernel, texture.width / 4, texture.height / 4, texture.volumeDepth / 4);
             Graphics.CopyTexture(diffusionTexture, texture);
