@@ -10,16 +10,29 @@ using static UnityEngine.Mathf;
 [ExecuteAlways]
 public class ComputeController : MonoBehaviour
 {
+    [field: SerializeField, TitleGroup("Agents/Spawning")]
+    public bool filled { get; set; } = true;
+
+    [field: SerializeField, TitleGroup("Agents/Spawning")]
+    public bool pointInward { get; set; } = true;
+
+    [field: SerializeField, TitleGroup("Agents/Spawning")]
+    public bool RandomYaw { get; set; } = false;
+
+    [field: SerializeField, TitleGroup("Agents/Spawning")]
+    public bool RandomPitch { get; set; } = true;
+
     [Range(1, 10)]
     public int itterations = 1;
 
     [BoxGroup("Agents")]
     [TitleGroup("Agents/Spawning")]
     public int numAgents = 100;
+    public string stringNumAgents { set => numAgents = Max(int.Parse(value), 100); }
 
-    [TitleGroup("Agents/Spawning")]
-    [Range(0,1)]
-    public float normalizedSpawnRadius = 0.25f;
+    [field: TitleGroup("Agents/Spawning"), SerializeField]
+    [field: Range(0, 1)]
+    public float normalizedSpawnRadius { get; set; } = 0.25f;
 
     [TitleGroup("Agents/Movement")]
     public float agentSpeed = 1.0f;
@@ -120,10 +133,13 @@ public class ComputeController : MonoBehaviour
         Agent[] data = new Agent[numAgents];
         for (int i = 0; i < numAgents; i++)
         {
-            float yaw = 0;//Random.Range(-PI, PI);
-            float pitch =  Random.Range(-PI, PI);
+            float yaw = RandomYaw ? Random.Range(-PI, PI) : 0;
+            float pitch =  RandomPitch ? Random.Range(-PI, PI) : 0;
             Vector3 direction = new(Cos(yaw) * Cos(pitch), Sin(yaw) * Cos(pitch), Sin(pitch));
-            direction *= -Pow(Random.value, 1f / 3);
+            if (filled)
+                direction *= Pow(Random.value, 1f / 3);
+            if (pointInward)
+                direction *= -1;
             Vector3 position = direction * normalizedSpawnRadius * texture.height / 2f + new Vector3(texture.width / 2f, texture.height / 2f, texture.volumeDepth / 2f);
             data[i] = new Agent(position, yaw, pitch);
         }
