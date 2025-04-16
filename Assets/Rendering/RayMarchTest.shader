@@ -5,6 +5,8 @@ Shader "Unlit/VolumeShader"
         _MainTex ("Texture", 3D) = "white" {}
         _Alpha ("Alpha", float) = 0.02
         _StepSize ("Step Size", float) = 0.01
+        _ColorOne ("Color One", Vector) = (0.7, 1.0, 0.7, 1)
+        _ColorTwo ("Color Two", Vector) = (0.7, 0.9, 1.0, 1)
     }
     SubShader
     {
@@ -21,10 +23,10 @@ Shader "Unlit/VolumeShader"
             #include "UnityCG.cginc"
 
             // Maximum number of raymarching samples
-            #define MAX_STEP_COUNT 128
+            #define MAX_STEP_COUNT 600
 
             // Allowed floating point inaccuracy
-            #define EPSILON 0.00001f
+            #define EPSILON 0.000001f
 
             struct appdata
             {
@@ -54,6 +56,8 @@ Shader "Unlit/VolumeShader"
             float4 _MainTex_ST;
             float _StepSize;
             float _Alpha;
+            float4 _ColorOne;
+            float4 _ColorTwo;
 
             //find intersection points of a ray with a box - taken from https://github.com/Barbelot/Physarum3D
 			bool intersectBox(ray r, AABB aabb, out float t0, out float t1)
@@ -100,11 +104,7 @@ Shader "Unlit/VolumeShader"
             float3 DistanceToColor(float distance, float minDistance, float maxDistance)
             {
 			    float t = saturate((distance - minDistance) / (maxDistance - minDistance));
-
-                float3 gradientStart = float3(0.7, 1.0, 0.7);
-                float3 gradientEnd = float3(0.7, 0.9, 1.0);
-
-                return lerp(gradientStart, gradientEnd, t);
+                return lerp(_ColorOne, _ColorTwo, t);
             }
 
             v2f vert (appdata v)
