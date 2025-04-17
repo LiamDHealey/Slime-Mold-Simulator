@@ -2864,6 +2864,14 @@ PrefabInstance:
 
 '
       objectReference: {fileID: 0}
+    - target: {fileID: 7762631652231673926, guid: 58e5d4b564a7fde47a247fc1e735b1c9, type: 3}
+      propertyPath: m_fontSize
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 7762631652231673926, guid: 58e5d4b564a7fde47a247fc1e735b1c9, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 16
+      objectReference: {fileID: 0}
     - target: {fileID: 7910041761043514299, guid: 58e5d4b564a7fde47a247fc1e735b1c9, type: 3}
       propertyPath: m_OnEndEdit.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
