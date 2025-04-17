@@ -23,5 +23,9 @@ public class KeyControls : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.H))
             foreach (Transform child in transform)
                 child.gameObject.SetActive(!child.gameObject.activeSelf);
+
+        if (Input.GetKeyDown(KeyCode.J))
+            foreach (Transform child in computeController.transform)
+                child.gameObject.SetActive(!child.gameObject.activeSelf);
     }
 }
